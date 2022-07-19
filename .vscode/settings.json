@@ -12,4 +12,6 @@
         "source.fixAll.eslint": true,
         "source.organizeImports": false,
     },
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "javascript.preferences.importModuleSpecifier": "project-relative",
 }
