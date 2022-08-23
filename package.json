@@ -26,5 +26,8 @@
     "vite": "^3.0.0",
     "vite-plugin-eslint": "^1.6.1",
     "vite-tsconfig-paths": "^3.5.0"
+  },
+  "dependencies": {
+    "nanoid": "^4.0.0"
   }
 }
