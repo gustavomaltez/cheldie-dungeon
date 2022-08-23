@@ -8,20 +8,20 @@ export class BrowserLogger extends Logger {
 
   public info(message: string, data?: unknown): void {
     const text = this.getMessageText(message, 'INFO');
-    if (!data) console.log(text, 'color: #cbebfb', `color: #${this.ownerColor}`, 'background: #202124; color: #ececec');
-    else console.log(text, 'color: #cbebfb', `color: #${this.ownerColor}`, 'background: #202124; color: #ececec', data);
+    if (!data) console.log(text, 'background: #202124; color: #cbebfb', `background: #202124; color: #${this.ownerColor}`, 'background: #202124; color: #ececec');
+    else console.log(text, 'background: #202124; color: #cbebfb', `background: #202124; color: #${this.ownerColor}`, 'background: #202124; color: #ececec', data);
   }
 
   public warn(message: string, data?: unknown): void {
     const text = this.getMessageText(message, 'WARN');
-    if (!data) console.log(text, 'color: #ffe186', `color: #${this.ownerColor}`, 'background: #202124; color: #ececec');
-    else console.log(text, 'color: #ffe186', `color: #${this.ownerColor}`, 'background: #202124; color: #ececec', data);
+    if (!data) console.log(text, 'background: #202124; color: #ffe186', `background: #202124; color: #${this.ownerColor}`, 'background: #202124; color: #ececec');
+    else console.log(text, 'background: #202124; color: #ffe186', `background: #202124; color: #${this.ownerColor}`, 'background: #202124; color: #ececec', data);
   }
 
   public error(message: string, data?: unknown): void {
     const text = this.getMessageText(message, 'ERROR');
-    if (!data) console.log(text, 'color: #ff6c6b', `color: #${this.ownerColor}`, 'background: #202124; color: #ececec');
-    else console.log(text, 'color: #ff6c6b', `color: #${this.ownerColor}`, 'background: #202124; color: #ececec', data);
+    if (!data) console.log(text, 'background: #202124; color: #ff6c6b', `background: #202124; color: #${this.ownerColor}`, 'background: #202124; color: #ececec');
+    else console.log(text, 'background: #202124; color: #ff6c6b', `background: #202124; color: #${this.ownerColor}`, 'background: #202124; color: #ececec', data);
   }
 
   // Helpers -------------------------------------------------------------------
