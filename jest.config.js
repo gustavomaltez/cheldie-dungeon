@@ -8,6 +8,11 @@ const paths = tsconfig.compilerOptions.paths;
 const config = {
   preset: 'ts-jest',
   testEnvironment: 'node',
+  collectCoverageFrom: [
+    'src/**/*.ts',
+    '!src/**/*.d.ts',
+    '!src/**/types.ts',
+  ],
   moduleNameMapper: pathsToModuleNameMapper(paths, { prefix: '<rootDir>/src/' }),
 };
 
