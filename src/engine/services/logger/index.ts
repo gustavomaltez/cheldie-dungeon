@@ -1,6 +1,8 @@
 import { Logger, LoggerSettings } from './abstract';
 import { BrowserLogger } from './BrowserLogger';
 
+export { Logger };
+
 type LoggerType = 'browser';
 
 /**
