@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "test": "jest --colors --config jest.config.js",
+    "test:run": "jest --config jest.config.js --colors --runInBand --verbose --no-cache",
+    "test:watch": "jest --config jest.config.js --colors --runInBand --verbose --no-cache --watchAll",
+    "test:coverage": "jest --config jest.config.js --colors --runInBand --verbose --no-cache --coverage",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
