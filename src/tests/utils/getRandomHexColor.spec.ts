@@ -1,4 +1,4 @@
-import { getRandomHexColor } from '@utils/getRandomHexColor';
+import { getRandomHexColor } from '@utils';
 
 describe('Random Hex Color Utility Function', () => {
 
