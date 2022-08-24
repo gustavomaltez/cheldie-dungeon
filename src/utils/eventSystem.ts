@@ -53,4 +53,19 @@ export class EventSystem<Type extends string> {
     this.listeners[type][id] = callback;
     return () => delete this.listeners[type][id];
   }
+
+  /**
+   * Registers a callback to an event type that will be executed only once.
+   * 
+   * @param type The event type to be listened.
+   * @param callback A callback to be executed when the event is triggered.
+   */
+  public once(type: Type, callback: Callback) {
+    if (!this.listeners[type]) this.listeners[type] = {};
+    const id = getRandomId();
+    this.listeners[type][id] = () => {
+      callback();
+      delete this.listeners[type][id];
+    };
+  }
 }
