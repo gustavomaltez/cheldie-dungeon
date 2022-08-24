@@ -26,9 +26,6 @@
       "@engine/*": [
         "engine/*"
       ],
-      "@utils/*": [
-        "utils/*"
-      ],
       "@utils": [
         "utils"
       ],
