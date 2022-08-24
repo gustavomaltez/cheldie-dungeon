@@ -59,4 +59,31 @@ describe('Event System', () => {
     eventSystem.trigger('bar');
     expect(barCallback).toBeCalledTimes(1);
   });
+
+  it('Should execute the callbacks following the creation order.', () => {
+    const eventSystem = new EventSystem<'test'>();
+    const callOrder: string[] = [];
+
+    eventSystem.on('test', () => callOrder.push('t'));
+    eventSystem.on('test', () => callOrder.push('e'));
+    eventSystem.on('test', () => callOrder.push('s'));
+    eventSystem.on('test', () => callOrder.push('t'));
+    eventSystem.trigger('test');
+
+    expect(callOrder.join('')).toBe('test');
+  });
+
+  it('Should allow to create a event listener that will be executed only once.', () => {
+    const eventSystem = new EventSystem<'test'>();
+    expect(() => eventSystem.once('test', jest.fn())).not.toThrow();
+  });
+
+  it('Should execute only one time a callback registered with the once method.', () => {
+    const eventSystem = new EventSystem<'test'>();
+    const callback = jest.fn();
+    eventSystem.once('test', callback);
+    eventSystem.trigger('test');
+    eventSystem.trigger('test');
+    expect(callback).toBeCalledTimes(1);
+  });
 });
