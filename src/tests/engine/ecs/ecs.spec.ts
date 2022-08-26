@@ -78,7 +78,7 @@ describe('Entity Component System', () => {
         const component = new TestComponent();
         entity.addComponent(component);
         entity.removeComponent(TestComponent);
-        expect(entity.components[TestComponent.name]).toBeUndefined();
+        expect(entity.components[TestComponent.constructor.name]).toBeUndefined();
       });
 
       it('Should allow to check whether an entity has a component attached to it.', () => {
@@ -87,6 +87,15 @@ describe('Entity Component System', () => {
         entity.addComponent(component);
         expect(entity.hasComponent(TestComponent)).toBe(true);
       });
+
+      it('Should allow to check whether an entity has a list of components attached to it.', () => {
+        const entity = new TestEntity();
+        class ComponentA extends Component { }
+        class ComponentB extends Component { }
+        entity.addComponent(new ComponentA());
+        entity.addComponent(new ComponentB());
+        expect(entity.hasComponents([ComponentA, ComponentB])).toBe(true);
+      }
     });
   });
 
