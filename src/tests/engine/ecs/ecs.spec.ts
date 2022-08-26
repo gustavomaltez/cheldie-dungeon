@@ -37,13 +37,28 @@ describe('Entity Component System', () => {
     });
 
     describe('Component management', () => {
-      it('Should allow to add a component to the entity.', () => {
+      it('Should allow to attach a component to the entity.', () => {
         const entity = new TestEntity();
         const component = new TestComponent();
         expect(() => entity.addComponent(component)).not.toThrow();
       });
 
-      it('Should replace the previous component if a component with the same type is added.', () => {
+      it('Should correctly attach a component to the entity.', () => {
+        const entity = new TestEntity();
+        const component = new TestComponent();
+        entity.addComponent(component);
+        expect(entity.components[TestComponent.name]).toBe(component);
+      });
+
+      it('Should correctly add the amount of components attached to the entity.', () => {
+        const entity = new TestEntity();
+        entity.addComponent(new TestComponent());
+        const componentCount = Object.keys(entity.components).length;
+        expect(componentCount).toBe(1);
+      });
+
+
+      it('Should replace the previous component if a component with the same type is attached.', () => {
         const entity = new TestEntity();
         const component1 = new TestComponent();
         const component2 = new TestComponent();
