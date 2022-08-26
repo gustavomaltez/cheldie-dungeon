@@ -34,6 +34,16 @@ export abstract class Entity {
   }
 
   /**
+   * Checks if an list of components are attached to the entity.
+   * 
+   * @param components A list of components you want to check (you must pass the class, not an instance nor a name).
+   * @returns Whether all the components are attached to the entity or not.
+   */
+  public hasComponents<ComponentType extends Component>(components: (new () => ComponentType)[]): boolean {
+    return components.every(component => this.hasComponent(component));
+  }
+
+  /**
    * Gets a component attached to the entity. 
    * - Throws an error if the entity does not have the component.
    * - Use `hasComponent` to check if the entity has the component. 
