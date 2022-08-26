@@ -57,7 +57,6 @@ describe('Entity Component System', () => {
         expect(componentCount).toBe(1);
       });
 
-
       it('Should replace the previous component if a component with the same type is attached.', () => {
         const entity = new TestEntity();
         const component1 = new TestComponent();
@@ -65,6 +64,21 @@ describe('Entity Component System', () => {
         entity.addComponent(component1);
         entity.addComponent(component2);
         expect(entity.components[TestComponent.name]).toBe(component2);
+      });
+
+      it('Should allow to detaches a component from the entity.', () => {
+        const entity = new TestEntity();
+        const component = new TestComponent();
+        entity.addComponent(component);
+        expect(() => entity.removeComponent(TestComponent)).not.toThrow();
+      });
+
+      it('Should correctly detaches a component from the entity.', () => {
+        const entity = new TestEntity();
+        const component = new TestComponent();
+        entity.addComponent(component);
+        entity.removeComponent(TestComponent);
+        expect(entity.components[TestComponent.name]).toBeUndefined();
       });
     });
   });
