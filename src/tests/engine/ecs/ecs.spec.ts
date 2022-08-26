@@ -42,6 +42,15 @@ describe('Entity Component System', () => {
         const component = new TestComponent();
         expect(() => entity.addComponent(component)).not.toThrow();
       });
+
+      it('Should replace the previous component if a component with the same type is added.', () => {
+        const entity = new TestEntity();
+        const component1 = new TestComponent();
+        const component2 = new TestComponent();
+        entity.addComponent(component1);
+        entity.addComponent(component2);
+        expect(entity.components[TestComponent.name]).toBe(component2);
+      });
     });
   });
 
