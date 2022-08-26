@@ -29,7 +29,7 @@ export abstract class Entity {
    * @returns Whether the entity has the component attached to it or not.
    */
   public hasComponent<ComponentType extends Component>(component: new () => ComponentType): boolean {
-    const _component = this._components[component.constructor.name];
+    const _component = this._components[component.prototype.constructor.name];
     return _component !== undefined;
   }
 
