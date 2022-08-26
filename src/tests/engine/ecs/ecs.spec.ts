@@ -95,7 +95,7 @@ describe('Entity Component System', () => {
         entity.addComponent(new ComponentA());
         entity.addComponent(new ComponentB());
         expect(entity.hasComponents([ComponentA, ComponentB])).toBe(true);
-      }
+      });
     });
   });
 
