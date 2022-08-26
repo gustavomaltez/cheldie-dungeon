@@ -80,6 +80,13 @@ describe('Entity Component System', () => {
         entity.removeComponent(TestComponent);
         expect(entity.components[TestComponent.name]).toBeUndefined();
       });
+
+      it('Should allow to check whether an entity has a component attached to it.', () => {
+        const entity = new TestEntity();
+        const component = new TestComponent();
+        entity.addComponent(component);
+        expect(entity.hasComponent(TestComponent)).toBe(true);
+      });
     });
   });
 
