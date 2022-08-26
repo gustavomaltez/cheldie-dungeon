@@ -1,32 +1,46 @@
-import { Entity } from '@engine/ecs';
+import { Component, Entity } from '@engine/ecs';
 
 class TestEntity extends Entity { }
+class TestComponent extends Component { }
 
 describe('Entity Component System', () => {
   describe('Entity', () => {
     describe('Instantiation', () => {
-      it('Should allow to create derived entities from the abstract entity class', () => {
+      it('Should allow to create derived entities from the abstract entity class.', () => {
         class SomeEntity extends Entity { }
         const entity = new SomeEntity();
         expect(entity).toBeInstanceOf(Entity);
       });
 
-      it('Should allow to instantiate an entity', () => {
+      it('Should allow to instantiate an entity.', () => {
         const entity = new TestEntity();
         expect(entity).toBeDefined();
       });
+
+      it('Should initialize the entity without components.', () => {
+        const entity = new TestEntity();
+        expect(entity.components).toEqual({});
+      });
     });
 
-    describe('Unique identifier', () => {
+    describe('Unique Identifier', () => {
       it('Should have a unique string identifier.', () => {
         const entity = new TestEntity();
         expect(typeof entity.id).toBe('string');
       });
 
-      it('Should not create two consecutive instancies with the same id', () => {
+      it('Should not create two consecutive instancies with the same id.', () => {
         const entity1 = new TestEntity();
         const entity2 = new TestEntity();
         expect(entity1.id).not.toBe(entity2.id);
+      });
+    });
+
+    describe('Component management', () => {
+      it('Should allow to add a component to the entity.', () => {
+        const entity = new TestEntity();
+        const component = new TestComponent();
+        expect(() => entity.addComponent(component)).not.toThrow();
       });
     });
   });
