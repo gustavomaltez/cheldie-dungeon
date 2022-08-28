@@ -15,33 +15,46 @@ class Query {
 
   // Returns an array of entities that have all the components specified in the query.
   public execute() {
+    // Gets the list of ids of all entities
     const entitiesKeys = Object.keys(this.world.entities);
-    const queryableComponents = this.query.map(component => this.world.components[component.prototype.name]);
-    const components = Object.values(queryableComponents);
+
 
     for (const entityKey of entitiesKeys) {
-      if (components.every(component => component[entityKey] !== undefined))
-        this.results[entityKey] = this.world.entities[entityKey];
+      let shouldAdd = true;
+      for (const component of this.query) {
+        if (this.world.components[component.prototype.name][entityKey] === undefined)
+          shouldAdd = false;
+      }
+
+      if (shouldAdd) this.results[entityKey] = this.world.entities[entityKey];
     }
 
-    if (!this.isEmpty) this.isEmpty = Object.keys(this.results).length === 0;
+    if (this.isEmpty) this.isEmpty = Object.keys(this.results).length === 0;
   }
 
   refresh(entityId: string): void {
-    console.log('refresh', entityId);
+    // console.trace(`Refreshing query for entity ${entityId}`);
     if (this.isEmpty) return this.execute();
-    if (this.results[entityId] === undefined) return; // No need to refresh if the entity is not in the query results.
 
-    // Remove the entity from the query results if it doesn't have all the components specified in the query.
-    if (this.query.some(component => this.world.components[component.name][entityId] === undefined))
-      delete this.results[entityId];
+    let shouldAdd = true;
+    for (const component of this.query) {
+      if (this.world.components[component.prototype.name][entityId] === undefined)
+        shouldAdd = false;
+    }
+
+    if (shouldAdd) this.results[entityId] = this.world.entities[entityId];
+    else delete this.results[entityId];
+  }
+
+  runForEach(callback: (entity: GetComponent) => void): void {
+    for (const entity of Object.values(this.results)) {
+      callback(entity);
+    }
   }
 }
 
 
 export abstract class System {
-
-  protected abstract readonly queries: Record<string, Query>;
 
   constructor(
     protected readonly world: World,
@@ -92,6 +105,7 @@ export class World {
   public createEntity() {
     const entityId = getRandomId();
 
+    // Function to get the component of a given type.
     this.entities[entityId] = <Component extends Constructor<any>>(_component: Component) => {
       const component = this.components[_component.prototype.name][entityId];
       if (component === undefined) throw new Error(`Entity ${entityId} does not have component ${name}`);
@@ -100,14 +114,26 @@ export class World {
 
     return {
       id: entityId,
-      addComponent: (component: InstanceType<any>) => {
-        const componentName = component.constructor.prototype.name;
-        if (this.components[componentName] === undefined) this.components[componentName] = {};
-        this.components[componentName][entityId] = component;
+      addComponent: (data: InstanceType<any> | InstanceType<any>[]) => {
+        const components = Array.isArray(data) ? data : [data];
+
+        for (const component of components) {
+          const id = component.constructor.prototype.name;
+          this.components[id][entityId] = component;
+        }
+
+        const componentsToRefresh = components.map(component => component.constructor.prototype.name);
+
 
         for (const queryId in this.queries) {
           const query = this.queries[queryId];
-          query.refresh(entityId);
+
+          for (const component of query.query) {
+            if (componentsToRefresh.includes(component.prototype.name)) {
+              query.refresh(entityId);
+              break;
+            }
+          }
         }
       },
       removeComponent: (name: string) => {
