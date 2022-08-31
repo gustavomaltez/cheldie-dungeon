@@ -154,13 +154,17 @@ export function createWorld(settings: WorldSettings) {
     setFlagOnMask(bitmask as Uint8Array, componentId, true);
 
     try {
+      Object.keys(components[componentId]);
       for (const key in componentData) {
         const array = components[componentId][key];
         const value = componentData[key];
         array[entityId] = value;
       }
     } catch (error) {
-      console.log(error);
+      const componentKeys = Object.keys(components[componentId]);
+      const dataKeys = Object.keys(componentData);
+      const unique = dataKeys.filter(key => componentKeys.indexOf(key) === -1);
+      console.error(`Error: Unable to set component data. Component with id '${componentId}' has no property '${unique.join(', ')}'`);
     }
   }
 

@@ -241,7 +241,7 @@ myWorld.log();
 interface Position {
   x: number;
   y: number;
-
+  h: number;
 }
 
 interface Velocity {
@@ -250,5 +250,5 @@ interface Velocity {
 }
 
 console.log(myEntity, position);
-myWorld.attachComponent<Position>(myEntity, position, { x: 2, y: 2 });
+myWorld.attachComponent<Position>(myEntity, position, { x: 2, y: 2, h: 2 });
 myWorld.attachComponent<Velocity>(myEntity, velocity, { x: 0, y: 0 });
