@@ -55,12 +55,11 @@ export function getFlagOnMask(mask: Uint8Array, bit: number): boolean {
 export function createIdSystem() {
   const availableIds: number[] = [];
   let nextId = 0;
-
   return {
     /**
      * Returns a new numeric id.
      */
-    create(): number {
+    create() {
       if (availableIds.length > 0)
         return availableIds.pop() as number;
       else
@@ -69,7 +68,7 @@ export function createIdSystem() {
     /**
      * Deletes an id. (Be aware that this id can be used again)
      */
-    delete(id: number): void {
+    delete(id: number) {
       availableIds.push(id);
     }
   };
@@ -96,8 +95,11 @@ export const TYPES = {
 };
 
 const MAX_ENTITIES_COUNT = 10000;
-type DataType = Int8ArrayConstructor | Uint8ArrayConstructor | Int16ArrayConstructor | Uint16ArrayConstructor | Int32ArrayConstructor | Uint32ArrayConstructor | Float32ArrayConstructor | Float64ArrayConstructor | BigInt64ArrayConstructor | BigUint64ArrayConstructor;
-type ComponentData = Record<string, DataType>;
+type ComponentArrayConstructor = Int8ArrayConstructor | Uint8ArrayConstructor | Int16ArrayConstructor | Uint16ArrayConstructor | Int32ArrayConstructor | Uint32ArrayConstructor | Float32ArrayConstructor | Float64ArrayConstructor | BigInt64ArrayConstructor | BigUint64ArrayConstructor;
+type ComponentArrayData = Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array | BigInt64Array | BigUint64Array;
+
+type ComponentDefinition = Record<string, ComponentArrayConstructor>;
+type ComponentData = Record<string, ComponentArrayData>;
 
 type WorldSettings = {
   maxEntitiesCount?: number;
@@ -129,9 +131,21 @@ export function createWorld(settings: WorldSettings) {
     // ToDo: Delete all components of the entity
   }
 
+  function attachComponent<Data extends Record<string, any>>(
+    entityId: number,
+    componentId: number,
+    componentData: Data
+  ): void {
+
+    for (const key in componentData) {
+      const array = components[componentId][key];
+      const value = componentData[key];
+      array[entityId] = value;
+    }
+  }
   // Component -----------------------------------------------------------------
 
-  function createComponent(data: ComponentData): number {
+  function createComponent(data: ComponentDefinition): number {
     const componentId = componentIdSystem.create();
     components[componentId] = {};
 
@@ -142,7 +156,7 @@ export function createWorld(settings: WorldSettings) {
       components[componentId][key] = array;
     }
 
-    return componentIdSystem.create();
+    return componentId;
   }
 
   function deleteComponent(id: number): void {
@@ -170,5 +184,6 @@ export function createWorld(settings: WorldSettings) {
     createComponent,
     deleteComponent,
     log,
+    attachComponent
   };
 }
