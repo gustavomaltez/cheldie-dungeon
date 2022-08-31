@@ -107,7 +107,9 @@ type WorldSettings = {
 export function createWorld(settings: WorldSettings) {
   // Settings ------------------------------------------------------------------
 
-  if (!settings.maxEntitiesCount) settings.maxEntitiesCount = MAX_ENTITIES_COUNT;
+  const {
+    maxEntitiesCount = MAX_ENTITIES_COUNT
+  } = settings;
 
   // Internal World State ------------------------------------------------------
 
@@ -131,28 +133,66 @@ export function createWorld(settings: WorldSettings) {
     // ToDo: Delete all components of the entity
   }
 
+  /**
+   * Attaches a component to an entity.
+   * - Keep in mind that you can only have a single component of each type 
+   * associated to an entity. If you try to attach multiple components of the 
+   * same type to an entity the previous attached component data will be 
+   * overwritten by the new component data.
+   * 
+   * @param entityId The id of the entity to have te component attached to.
+   * @param componentId The id of the component to attach to this entity.
+   * @param componentData The initial component data.
+   */
   function attachComponent<Data extends Record<string, any>>(
     entityId: number,
     componentId: number,
     componentData: Data
   ): void {
 
-    for (const key in componentData) {
-      const array = components[componentId][key];
-      const value = componentData[key];
-      array[entityId] = value;
+    const { bitmask } = components[componentId];
+    setFlagOnMask(bitmask as Uint8Array, componentId, true);
+
+    try {
+      for (const key in componentData) {
+        const array = components[componentId][key];
+        const value = componentData[key];
+        array[entityId] = value;
+      }
+    } catch (error) {
+      console.log(error);
     }
   }
+
+  /**
+   * Detaches a component from the entity
+   * - Note: This will not clear the component data. It's not needed to clear the
+   * component data at this moment because the memory allocated will not be released.
+   * Once you attach the same component to this entity the data will be overwritten.
+   * 
+   * @param entityId The id of the entity to detach the component.
+   * @param componentId The id of the component to detach.
+   */
+  function detachComponent(entityId: number, componentId: number) {
+    const component = components[componentId];
+    const { bitmask } = component;
+    setFlagOnMask(bitmask as Uint8Array, componentId, false);
+  }
+
   // Component -----------------------------------------------------------------
 
   function createComponent(data: ComponentDefinition): number {
     const componentId = componentIdSystem.create();
     components[componentId] = {};
 
+    // Create bitmask to track which entities have the component
+    const bitmask = createBitMask(maxEntitiesCount);
+    components[componentId].bitmask = bitmask;
+
     // Create properties arrays
     for (const key in data) {
       const ArrayType = data[key];
-      const array = new (ArrayType as any)(settings.maxEntitiesCount);
+      const array = new (ArrayType as any)(maxEntitiesCount);
       components[componentId][key] = array;
     }
 

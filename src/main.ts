@@ -1,3 +1,5 @@
+import { createWorld, TYPES } from 'newAbstraction';
+
 import { System, World } from '.';
 
 // Temporary canvas setup ------------------------------------------------------
@@ -219,3 +221,34 @@ const update = (deltaTime: number) => {
 };
 
 update(0);
+
+
+const myWorld = createWorld({});
+const myEntity = myWorld.createEntity();
+
+const position = myWorld.createComponent({
+  x: TYPES.uint8,
+  y: TYPES.uint8,
+});
+
+const velocity = myWorld.createComponent({
+  x: TYPES.uint8,
+  y: TYPES.uint8,
+});
+
+myWorld.log();
+
+interface Position {
+  x: number;
+  y: number;
+
+}
+
+interface Velocity {
+  x: number;
+  y: number;
+}
+
+console.log(myEntity, position);
+myWorld.attachComponent<Position>(myEntity, position, { x: 2, y: 2 });
+myWorld.attachComponent<Velocity>(myEntity, velocity, { x: 0, y: 0 });
