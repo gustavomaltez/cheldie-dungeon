@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 export { };
 
 // Utility functions -----------------------------------------------------------
@@ -54,7 +55,9 @@ export function getFlagOnMask(mask: Uint8Array, bit: number): boolean {
  */
 export function createIdSystem() {
   const availableIds: number[] = [];
+
   let nextId = 0;
+
   return {
     /**
      * Returns a new numeric id.
@@ -70,7 +73,10 @@ export function createIdSystem() {
      */
     delete(id: number) {
       availableIds.push(id);
-    }
+    },
+    getAliveIdCount() {
+      return nextId - availableIds.length;
+    },
   };
 }
 
@@ -113,7 +119,7 @@ export function createWorld(settings: WorldSettings) {
 
   // Internal World State ------------------------------------------------------
 
-  const queries: Record<number, Uint8Array> = {};
+  const queries: Record<number, Uint16Array> = {};
   const components: Record<number, ComponentData> = {};
 
   // Id system -----------------------------------------------------------------
@@ -151,7 +157,7 @@ export function createWorld(settings: WorldSettings) {
   ): void {
 
     const { bitmask } = components[componentId];
-    setFlagOnMask(bitmask as Uint8Array, componentId, true);
+    setFlagOnMask(bitmask as Uint8Array, entityId, true);
 
     try {
       Object.keys(components[componentId]);
@@ -203,31 +209,72 @@ export function createWorld(settings: WorldSettings) {
     return componentId;
   }
 
-  function deleteComponent(id: number): void {
-    componentIdSystem.delete(id);
-    delete components[id];
-    // ToDo: Refresh all queries that use this component
+  // Query ---------------------------------------------------------------------
+
+  function createQuery(...queryableComponents: number[]): number {
+    const queryId = queryIdSystem.create();
+    queries[queryId] = new Uint16Array(maxEntitiesCount);
+
+    let currentQueryIndex = 0;
+
+    for (let id = 0; id < entityIdSystem.getAliveIdCount(); id++) {
+      let shouldInclude = true;
+
+      for (const componentId of queryableComponents) {
+        const { bitmask } = components[componentId];
+
+        if (!getFlagOnMask(bitmask as Uint8Array, id)) {
+          shouldInclude = false;
+          break;
+        }
+      }
+
+      /**
+       * WARNING: A query may contain a entity id id zero, so, before validating
+       * the end of the id, we need to check if query[n] and query[n + 1] are both 0
+       */
+      if (shouldInclude) queries[queryId][currentQueryIndex++] = id;
+    }
+
+    return queryId;
   }
 
-  // Query ---------------------------------------------------------------------
+  function deleteQuery(queryId: number): void {
+    queryIdSystem.delete(queryId);
+    delete queries[queryId];
+  }
 
   // API -----------------------------------------------------------------------
 
-  // Temp ----------------------------------------------------------------------
+  // Utility -------------------------------------------------------------------
 
-  const log = () => {
+  function log() {
     console.log({
       components,
       queries
     });
-  };
+  }
 
   return {
-    createEntity,
-    deleteEntity,
-    createComponent,
-    deleteComponent,
-    log,
-    attachComponent
+    entity: {
+      create: createEntity,
+      delete: deleteEntity,
+      components: {
+        attach: attachComponent,
+        detach: detachComponent
+      }
+    },
+    component: {
+      create: createComponent,
+    },
+    // system: {
+    //   create: () => { },
+    //   delete: () => { },
+    // },
+    query: {
+      create: createQuery,
+      delete: deleteQuery,
+    },
+    log
   };
 }
