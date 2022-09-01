@@ -110,6 +110,9 @@ type ComponentData = Record<string, ComponentArrayData>;
 type WorldSettings = {
   maxEntitiesCount?: number;
 };
+
+type System = (queries: Record<number, Uint16Array>, components: Record<number, ComponentData>, dt: number) => void;
+
 export function createWorld(settings: WorldSettings) {
   // Settings ------------------------------------------------------------------
 
@@ -120,6 +123,7 @@ export function createWorld(settings: WorldSettings) {
   // Internal World State ------------------------------------------------------
 
   const queries: Record<number, Uint16Array> = {};
+  const systems: Record<number, System> = {};
   const components: Record<number, ComponentData> = {};
 
   // Id system -----------------------------------------------------------------
@@ -127,6 +131,7 @@ export function createWorld(settings: WorldSettings) {
   const queryIdSystem = createIdSystem();
   const componentIdSystem = createIdSystem();
   const entityIdSystem = createIdSystem();
+  const systemIdSystem = createIdSystem();
 
   // Entity --------------------------------------------------------------------
 
@@ -186,7 +191,7 @@ export function createWorld(settings: WorldSettings) {
   function detachComponent(entityId: number, componentId: number) {
     const component = components[componentId];
     const { bitmask } = component;
-    setFlagOnMask(bitmask as Uint8Array, componentId, false);
+    setFlagOnMask(bitmask as Uint8Array, entityId, false);
   }
 
   // Component -----------------------------------------------------------------
@@ -244,7 +249,17 @@ export function createWorld(settings: WorldSettings) {
     delete queries[queryId];
   }
 
-  // API -----------------------------------------------------------------------
+  // System --------------------------------------------------------------------
+
+  function createSystem(system: System): number {
+    const systemId = systemIdSystem.create();
+    systems[systemId] = system;
+    return systemId;
+  }
+
+  function deleteSystem(systemId: number): void {
+    systemIdSystem.delete(systemId);
+  }
 
   // Utility -------------------------------------------------------------------
 
@@ -254,6 +269,16 @@ export function createWorld(settings: WorldSettings) {
       queries
     });
   }
+
+  function executeSystems(dt: number) {
+    for (const systemId in systems) {
+      const system = systems[systemId];
+      system(queries, components, dt);
+    }
+  }
+
+  // API -----------------------------------------------------------------------
+
 
   return {
     entity: {
@@ -267,14 +292,15 @@ export function createWorld(settings: WorldSettings) {
     component: {
       create: createComponent,
     },
-    // system: {
-    //   create: () => { },
-    //   delete: () => { },
-    // },
+    system: {
+      create: createSystem,
+      delete: deleteSystem
+    },
     query: {
       create: createQuery,
       delete: deleteQuery,
     },
-    log
+    log,
+    executeSystems
   };
 }
