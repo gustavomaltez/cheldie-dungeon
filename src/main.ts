@@ -1,4 +1,4 @@
-import { createWorld, TYPES } from 'newAbstraction';
+import { createWorld, TYPES } from '@engine/ecs';
 
 // Temporary canvas setup ------------------------------------------------------
 
@@ -51,7 +51,7 @@ world.entity.components.attach(player, velocity, { x: 5, y: 2 });
 world.entity.components.attach(player, size, { width: 20, height: 20 });
 world.entity.components.attach(player, color, { r: 255, g: 255, b: 255 });
 
-for (let i = 0; i < 200; i++) {
+for (let i = 0; i < 20; i++) {
   const entity = world.entity.create();
 
   world.entity.components.attach(entity, position, { x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight });
@@ -63,7 +63,7 @@ for (let i = 0; i < 200; i++) {
 
 const inMapQuery = world.query.create(position, velocity, size, color);
 
-const movementSystem = world.system.create((queries, components, dt) => {
+world.system.create((queries, components, dt) => {
 
   for (const id of queries[inMapQuery]) {
     if (id === 0) return;
@@ -90,7 +90,7 @@ const movementSystem = world.system.create((queries, components, dt) => {
   }
 });
 
-const drawingSystem = world.system.create((queries, components, dt) => {
+world.system.create((queries, components, dt) => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = '#292a2d';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -108,7 +108,8 @@ const drawingSystem = world.system.create((queries, components, dt) => {
 });
 
 let startTime, endTime;
-const colisionSystem = world.system.create((queries, components, dt) => {
+
+world.system.create((queries, components, dt) => {
 
   startTime = performance.now();
   for (const id of queries[inMapQuery]) {
@@ -136,8 +137,6 @@ const colisionSystem = world.system.create((queries, components, dt) => {
   }
 });
 
-
-
 // Main loop ------------------------------------------------------------------
 
 const loop = () => {
@@ -146,6 +145,4 @@ const loop = () => {
 };
 
 loop();
-
-
 world.log();

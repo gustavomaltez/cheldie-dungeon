@@ -1,4 +1,2 @@
-export { Entity } from './Entity';
-export { System } from './System';
-export { Component } from './Component';
-export { World } from './World';
+export { createWorld } from './ecs';
+export { TYPES } from './types';
