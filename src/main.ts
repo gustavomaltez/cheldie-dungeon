@@ -3,8 +3,8 @@ import { createWorld, TYPES } from 'newAbstraction';
 // Temporary canvas setup ------------------------------------------------------
 
 const canvas = document.createElement('canvas');
-canvas.width = window.innerWidth - 20;
-canvas.height = window.innerHeight - 20;
+canvas.width = 400;
+canvas.height = 250;
 document.body.appendChild(canvas);
 const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
 
@@ -22,13 +22,13 @@ const world = createWorld({});
 // Components creation ---------------------------------------------------------
 
 const position = world.component.create({
-  x: TYPES.uint16,
-  y: TYPES.uint16,
+  x: TYPES.int16,
+  y: TYPES.int16,
 });
 
 const velocity = world.component.create({
-  x: TYPES.uint16,
-  y: TYPES.uint16,
+  x: TYPES.int16,
+  y: TYPES.int16,
 });
 
 const size = world.component.create({
@@ -55,60 +55,62 @@ interface Size {
   height: number;
 }
 
-world.entity.components.attach<Position>(player, position, { x: 2, y: 2 });
-world.entity.components.attach<Velocity>(player, velocity, { x: 5, y: 5 });
-world.entity.components.attach<Size>(player, size, { width: 10, height: 10 });
+world.entity.components.attach<Position>(player, position, { x: 250, y: 40 });
+world.entity.components.attach<Velocity>(player, velocity, { x: 5, y: 2 });
+world.entity.components.attach<Size>(player, size, { width: 20, height: 20 });
 
 const inMapQuery = world.query.create(position, velocity, size);
 
 const movementSystem = world.system.create((queries, components, dt) => {
   let zeroCount = 0;
 
-  for (const entity of queries[inMapQuery]) {
-    if (entity === 0) zeroCount++;
+  for (const id of queries[inMapQuery]) {
+    if (id === 0) zeroCount++;
     if (zeroCount >= 2) break;
 
     const vComponents = components[velocity];
     const pComponents = components[position];
     const sComponents = components[size];
 
-    pComponents.x[entity] = (pComponents.x[entity] as number) + (vComponents.x[entity] as number);
-    pComponents.y[entity] = (pComponents.y[entity] as number) + (vComponents.y[entity] as number);
+    // If component is outside the right boundary
+    if (pComponents.x[id] + sComponents.width[id] >= canvas.width)
+      vComponents.x[id] = vComponents.x[id] * -1;
 
-    // Check if entity touches the map boundaries
-    if ((pComponents.x[entity] as number) + (sComponents.width[entity] as number) >= canvas.width) {
-      pComponents.x[entity] = canvas.width - (sComponents.width[entity] as number);
-      vComponents.x[entity] = -(vComponents.x[entity] as number);
-    }
-    else if ((pComponents.x[entity] as number) + (sComponents.width[entity] as number) <= 0) {
-      pComponents.x[entity] = 0;
-      vComponents.x[entity] = -(vComponents.x[entity] as number);
-    }
-    else if ((pComponents.y[entity] as number) + (sComponents.height[entity] as number) >= canvas.height) {
-      pComponents.y[entity] = canvas.height - (sComponents.height[entity] as number);
-      vComponents.y[entity] = -(vComponents.y[entity] as number);
-    }
-    else if ((pComponents.y[entity] as number) + (sComponents.height[entity] as number) <= 0) {
-      pComponents.y[entity] = 0;
-      vComponents.y[entity] = -(vComponents.y[entity] as number);
-    }
+    //If component is outside the left boundary
+    else if (pComponents.x[id] <= 0)
+      vComponents.x[id] = vComponents.x[id] * -1;
+
+
+    // If component is outside the bottom boundary
+    else if (pComponents.y[id] + sComponents.height[id] >= canvas.height)
+      vComponents.y[id] = vComponents.y[id] * -1;
+
+
+    // If component is outside the top boundary
+    else if (pComponents.y[id] <= 0)
+      vComponents.y[id] = vComponents.y[id] * -1;
+
+    pComponents.x[id] = pComponents.x[id] + vComponents.x[id];
+    pComponents.y[id] = pComponents.y[id] + vComponents.y[id];
   }
 });
 
 const drawingSystem = world.system.create((queries, components, dt) => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = '#000';
+  ctx.fillStyle = '#ff0000';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   let zeroCount = 0;
 
-  for (const entity of queries[inMapQuery]) {
-    if (entity === 0) zeroCount++;
+  for (const id of queries[inMapQuery]) {
+    if (id === 0) zeroCount++;
     if (zeroCount >= 2) break;
 
     const pComponents = components[position];
+    const sComponents = components[size];
 
     ctx.fillStyle = '#fff';
-    ctx.fillRect(pComponents.x[entity] as number, pComponents.y[entity] as number, 20, 20);
+
+    ctx.fillRect(pComponents.x[id], pComponents.y[id], sComponents.width[id], sComponents.height[id]);
   }
 });
 
@@ -121,4 +123,6 @@ const loop = () => {
 };
 
 loop();
+
+
 world.log();
