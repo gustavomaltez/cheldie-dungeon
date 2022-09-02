@@ -3,8 +3,8 @@ import { createWorld, TYPES } from 'newAbstraction';
 // Temporary canvas setup ------------------------------------------------------
 
 const canvas = document.createElement('canvas');
-canvas.width = 400;
-canvas.height = 250;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 document.body.appendChild(canvas);
 const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
 
@@ -36,83 +36,106 @@ const size = world.component.create({
   height: TYPES.uint8,
 });
 
+const color = world.component.create({
+  r: TYPES.uint8,
+  g: TYPES.uint8,
+  b: TYPES.uint8,
+});
+
 // Entities creation -----------------------------------------------------------
 
 const player = world.entity.create();
 
-interface Position {
-  x: number;
-  y: number;
+world.entity.components.attach(player, position, { x: 250, y: 40 });
+world.entity.components.attach(player, velocity, { x: 5, y: 2 });
+world.entity.components.attach(player, size, { width: 20, height: 20 });
+world.entity.components.attach(player, color, { r: 255, g: 255, b: 255 });
+
+for (let i = 0; i < 200; i++) {
+  const entity = world.entity.create();
+
+  world.entity.components.attach(entity, position, { x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight });
+  world.entity.components.attach(entity, velocity, { x: Math.random() * 5, y: Math.random() * 5 });
+  const sizeValue = Math.random() * 10 + 1;
+  world.entity.components.attach(entity, size, { width: sizeValue, height: sizeValue });
+  world.entity.components.attach(entity, color, { r: Math.random() * 255, g: Math.random() * 255, b: Math.random() * 255 });
 }
 
-interface Velocity {
-  x: number;
-  y: number;
-}
-
-interface Size {
-  width: number;
-  height: number;
-}
-
-world.entity.components.attach<Position>(player, position, { x: 250, y: 40 });
-world.entity.components.attach<Velocity>(player, velocity, { x: 5, y: 2 });
-world.entity.components.attach<Size>(player, size, { width: 20, height: 20 });
-
-const inMapQuery = world.query.create(position, velocity, size);
+const inMapQuery = world.query.create(position, velocity, size, color);
 
 const movementSystem = world.system.create((queries, components, dt) => {
-  let zeroCount = 0;
 
   for (const id of queries[inMapQuery]) {
-    if (id === 0) zeroCount++;
-    if (zeroCount >= 2) break;
+    if (id === 0) return;
 
-    const vComponents = components[velocity];
-    const pComponents = components[position];
-    const sComponents = components[size];
+    const { x: velocityX, y: velocityY } = components[velocity];
+    const { x: positionX, y: positionY } = components[position];
+    const { width, height } = components[size];
 
     // If component is outside the right boundary
-    if (pComponents.x[id] + sComponents.width[id] >= canvas.width)
-      vComponents.x[id] = vComponents.x[id] * -1;
-
+    if (positionX[id] + width[id] >= canvas.width)
+      velocityX[id] = velocityX[id] * -1;
     //If component is outside the left boundary
-    else if (pComponents.x[id] <= 0)
-      vComponents.x[id] = vComponents.x[id] * -1;
-
-
+    if (positionX[id] <= 0)
+      velocityX[id] = velocityX[id] * -1;
     // If component is outside the bottom boundary
-    else if (pComponents.y[id] + sComponents.height[id] >= canvas.height)
-      vComponents.y[id] = vComponents.y[id] * -1;
-
-
+    if (positionY[id] + height[id] >= canvas.height)
+      velocityY[id] = velocityY[id] * -1;
     // If component is outside the top boundary
-    else if (pComponents.y[id] <= 0)
-      vComponents.y[id] = vComponents.y[id] * -1;
+    if (positionY[id] <= 0)
+      velocityY[id] = velocityY[id] * -1;
 
-    pComponents.x[id] = pComponents.x[id] + vComponents.x[id];
-    pComponents.y[id] = pComponents.y[id] + vComponents.y[id];
+    positionX[id] = positionX[id] + velocityX[id];
+    positionY[id] = positionY[id] + velocityY[id];
   }
 });
 
 const drawingSystem = world.system.create((queries, components, dt) => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = '#ff0000';
+  ctx.fillStyle = '#292a2d';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  let zeroCount = 0;
 
   for (const id of queries[inMapQuery]) {
-    if (id === 0) zeroCount++;
-    if (zeroCount >= 2) break;
+    if (id === 0) return;
 
-    const pComponents = components[position];
-    const sComponents = components[size];
+    const { x, y } = components[position];
+    const { width, height } = components[size];
+    const { r, g, b } = components[color];
 
-    ctx.fillStyle = '#fff';
-
-    ctx.fillRect(pComponents.x[id], pComponents.y[id], sComponents.width[id], sComponents.height[id]);
+    ctx.fillStyle = `rgb(${r[id]}, ${g[id]}, ${b[id]})`;
+    ctx.fillRect(x[id], y[id], width[id], height[id]);
   }
 });
+
+let startTime, endTime;
+const colisionSystem = world.system.create((queries, components, dt) => {
+
+  startTime = performance.now();
+  for (const id of queries[inMapQuery]) {
+    if (id === 0) return console.log(performance.now() - startTime);
+
+    const { x: velocityX, y: velocityY } = components[velocity];
+    const { x: positionX, y: positionY } = components[position];
+    const { width, height } = components[size];
+
+    for (const id2 of queries[inMapQuery]) {
+      if (id2 === 0) break;
+      if (id === id2) continue;
+
+      const { x: positionX2, y: positionY2 } = components[position];
+      const { width: width2, height: height2 } = components[size];
+
+      if (positionX[id] < positionX2[id2] + width2[id2] &&
+        positionX[id] + width[id] > positionX2[id2] &&
+        positionY[id] < positionY2[id2] + height2[id2] &&
+        positionY[id] + height[id] > positionY2[id2]) {
+        velocityX[id] = velocityX[id] * -1;
+        velocityY[id] = velocityY[id] * -1;
+      }
+    }
+  }
+});
+
 
 
 // Main loop ------------------------------------------------------------------

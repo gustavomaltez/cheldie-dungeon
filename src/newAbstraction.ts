@@ -53,10 +53,10 @@ export function getFlagOnMask(mask: Uint8Array, bit: number): boolean {
  * 
  * @returns Set of functions to create and delete ids
  */
-export function createIdSystem() {
+export function createIdSystem(startingId = 0) {
   const availableIds: number[] = [];
 
-  let nextId = 0;
+  let nextId = startingId;
 
   return {
     /**
@@ -128,7 +128,7 @@ export function createWorld(settings: WorldSettings) {
 
   const queryIdSystem = createIdSystem();
   const componentIdSystem = createIdSystem();
-  const entityIdSystem = createIdSystem();
+  const entityIdSystem = createIdSystem(1);
   const systemIdSystem = createIdSystem();
 
   // Entity --------------------------------------------------------------------
@@ -269,6 +269,7 @@ export function createWorld(settings: WorldSettings) {
   }
 
   function executeSystems(dt: number) {
+
     for (const systemId in systems) {
       const system = systems[systemId];
       system(queries, components, dt);
