@@ -15,6 +15,13 @@ const pressedKeys: Record<string, boolean> = {};
 window.onkeyup = function (e) { pressedKeys[e.key] = false; };
 window.onkeydown = function (e) { pressedKeys[e.key] = true; };
 
+// Temporary canvas resizer ----------------------------------------------------
+
+window.onresize = () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+};
+
 // World setup -----------------------------------------------------------------
 
 const world = createWorld({});
