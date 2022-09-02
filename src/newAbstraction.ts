@@ -96,13 +96,11 @@ export const TYPES = {
   uint32: Uint32Array,
   float32: Float32Array,
   float64: Float64Array,
-  int64: BigInt64Array,
-  uint64: BigUint64Array,
 };
 
 const MAX_ENTITIES_COUNT = 10000;
 type ComponentArrayConstructor = Int8ArrayConstructor | Uint8ArrayConstructor | Int16ArrayConstructor | Uint16ArrayConstructor | Int32ArrayConstructor | Uint32ArrayConstructor | Float32ArrayConstructor | Float64ArrayConstructor | BigInt64ArrayConstructor | BigUint64ArrayConstructor;
-type ComponentArrayData = Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array | BigInt64Array | BigUint64Array;
+type ComponentArrayData = Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array;
 
 type ComponentDefinition = Record<string, ComponentArrayConstructor>;
 type ComponentData = Record<string, ComponentArrayData>;
