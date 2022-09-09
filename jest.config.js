@@ -12,7 +12,8 @@ const config = {
     'src/engine/**/*.ts',
     'src/game/**/*.ts',
     'src/utils/**/*.ts',
-    '!src/**/index.ts'
+    '!src/**/index.ts',
+    '!src/**/abstract.ts'
   ],
   moduleNameMapper: pathsToModuleNameMapper(paths, { prefix: '<rootDir>/src/' }),
 };
