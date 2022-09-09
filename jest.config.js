@@ -13,7 +13,8 @@ const config = {
     'src/game/**/*.ts',
     'src/utils/**/*.ts',
     '!src/**/index.ts',
-    '!src/**/abstract.ts'
+    '!src/**/abstract.ts',
+    '!src/**/types.ts',
   ],
   moduleNameMapper: pathsToModuleNameMapper(paths, { prefix: '<rootDir>/src/' }),
 };
