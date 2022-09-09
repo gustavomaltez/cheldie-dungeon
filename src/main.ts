@@ -58,7 +58,7 @@ world.entity.components.attach(player, velocity, { x: 5, y: 2 });
 world.entity.components.attach(player, size, { width: 20, height: 20 });
 world.entity.components.attach(player, color, { r: 255, g: 255, b: 255 });
 
-for (let i = 0; i < 20; i++) {
+for (let i = 0; i < 25; i++) {
   const entity = world.entity.create();
 
   world.entity.components.attach(entity, position, { x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight });
@@ -114,13 +114,11 @@ world.system.create((queries, components, dt) => {
   }
 });
 
-let startTime, endTime;
-
 world.system.create((queries, components, dt) => {
 
-  startTime = performance.now();
+  // startTime = performance.now();
   for (const id of queries[inMapQuery]) {
-    if (id === 0) return console.log(performance.now() - startTime);
+    if (id === 0) return;
 
     const { x: velocityX, y: velocityY } = components[velocity];
     const { x: positionX, y: positionY } = components[position];

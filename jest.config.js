@@ -9,9 +9,10 @@ const config = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   collectCoverageFrom: [
-    'src/**/*.ts',
-    '!src/**/*.d.ts',
-    '!src/**/types.ts',
+    'src/engine/**/*.ts',
+    'src/game/**/*.ts',
+    'src/utils/**/*.ts',
+    '!src/**/index.ts'
   ],
   moduleNameMapper: pathsToModuleNameMapper(paths, { prefix: '<rootDir>/src/' }),
 };
