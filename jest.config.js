@@ -8,6 +8,7 @@ const paths = tsconfig.compilerOptions.paths;
 const config = {
   preset: 'ts-jest',
   testEnvironment: 'node',
+  clearMocks: true,
   collectCoverageFrom: [
     'src/engine/**/*.ts',
     'src/game/**/*.ts',
