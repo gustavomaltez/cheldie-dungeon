@@ -14,22 +14,40 @@ describe('Browser Logger', () => {
   });
 
   describe('Methods', () => {
-    it('Should allow to log a message.', () => {
+    it('Should allow to log a message without data.', () => {
       const BrowserLogger = getLogger('browser');
       const logger = new BrowserLogger({ owner: 'test' });
       expect(() => logger.info('test')).not.toThrowError();
     });
 
-    it('Should allow to log a warning.', () => {
+    it('Should allow to log a message with data.', () => {
+      const BrowserLogger = getLogger('browser');
+      const logger = new BrowserLogger({ owner: 'test' });
+      expect(() => logger.info('test', { foo: 'bar' })).not.toThrowError();
+    });
+
+    it('Should allow to log a warning without data.', () => {
       const BrowserLogger = getLogger('browser');
       const logger = new BrowserLogger({ owner: 'test' });
       expect(() => logger.warn('test')).not.toThrowError();
     });
 
-    it('Should allow to log an error.', () => {
+    it('Should allow to log a warning with data.', () => {
+      const BrowserLogger = getLogger('browser');
+      const logger = new BrowserLogger({ owner: 'test' });
+      expect(() => logger.warn('test', { foo: 'bar' })).not.toThrowError();
+    });
+
+    it('Should allow to log an error without data.', () => {
       const BrowserLogger = getLogger('browser');
       const logger = new BrowserLogger({ owner: 'test' });
       expect(() => logger.error('test')).not.toThrowError();
+    });
+
+    it('Should allow to log an error with data.', () => {
+      const BrowserLogger = getLogger('browser');
+      const logger = new BrowserLogger({ owner: 'test' });
+      expect(() => logger.error('test', { foo: 'bar' })).not.toThrowError();
     });
   });
 
@@ -67,17 +85,41 @@ describe('Browser Logger', () => {
     });
 
     describe('Message With Data', () => {
-      it('Should log data to the console.', () => {
+      it('Should log info data to the console.', () => {
         const BrowserLogger = getLogger('browser');
         const logger = new BrowserLogger({ owner: 'JestOwner' });
         const spy = jest.spyOn(console, 'log');
-        logger.info('JestInfo', { foo: 'bar', test: true });
-
-        const { calls } = spy.mock;
-        const includesData = calls.some(data => JSON.stringify(data) === JSON.stringify({ foo: 'bar', test: true }));
+        const dataToLog = { foo: 'bar', test: true };
+        const stringifiedDataToLog = JSON.stringify(dataToLog);
+        logger.info('JestInfo', dataToLog);
+        const params = spy.mock.calls[0];
+        const includesData = params.some(data => JSON.stringify(data) === stringifiedDataToLog);
         expect(includesData).toBe(true);
       });
 
+      it('Should log warning data to the console.', () => {
+        const BrowserLogger = getLogger('browser');
+        const logger = new BrowserLogger({ owner: 'JestOwner' });
+        const spy = jest.spyOn(console, 'log');
+        const dataToLog = { foo: 'bar', test: true };
+        const stringifiedDataToLog = JSON.stringify(dataToLog);
+        logger.warn('JestWarn', dataToLog);
+        const params = spy.mock.calls[0];
+        const includesData = params.some(data => JSON.stringify(data) === stringifiedDataToLog);
+        expect(includesData).toBe(true);
+      });
+
+      it('Should log error data to the console.', () => {
+        const BrowserLogger = getLogger('browser');
+        const logger = new BrowserLogger({ owner: 'JestOwner' });
+        const spy = jest.spyOn(console, 'log');
+        const dataToLog = { foo: 'bar', test: true };
+        const stringifiedDataToLog = JSON.stringify(dataToLog);
+        logger.error('JestError', dataToLog);
+        const params = spy.mock.calls[0];
+        const includesData = params.some(data => JSON.stringify(data) === stringifiedDataToLog);
+        expect(includesData).toBe(true);
+      });
     });
   });
 });
