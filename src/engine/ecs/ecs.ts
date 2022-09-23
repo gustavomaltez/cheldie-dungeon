@@ -1,23 +1,76 @@
 import { createBitMask, createIdSystem, getFlagOnMask, setFlagOnMask } from '@utils';
 
-// Types -----------------------------------------------------------------------
+// Defaults --------------------------------------------------------------------
+
 const MAX_ENTITIES_COUNT = 10000;
+
+// Types -----------------------------------------------------------------------
+
 type ComponentArrayConstructor = Int8ArrayConstructor | Uint8ArrayConstructor | Int16ArrayConstructor | Uint16ArrayConstructor | Int32ArrayConstructor | Uint32ArrayConstructor | Float32ArrayConstructor | Float64ArrayConstructor | BigInt64ArrayConstructor | BigUint64ArrayConstructor;
 type ComponentArrayData = Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array;
 
 type ComponentDefinition = Record<string, ComponentArrayConstructor>;
 type ComponentData = Record<string, ComponentArrayData>;
 
+
+/**
+ * Represents a system.
+ * 
+ * - A system is a special function that is called before each render.
+ * - You can create a system by calling `world.system.create`.
+ * TODO: Finish this doc.
+ */
+type System = (
+  /**
+   * Represents a hash map of all existing queries in the world, and which components they contain.
+   * e.g: { drawable: [position, velocity, size, color] }
+   * e.g: { 0: [2, 7, 3, 9] }
+   * - Keep in mind that everything (components, queries, entities) are 
+   * identified by their numeric id, that's why you should store your queries, 
+   * components, entities in variables to have a better readability.
+   */
+  queries: Record<number, Uint16Array>,
+
+  /**
+   * Represents a hash map of all existing components in the world, and its data.
+   * e.g: { position: { x: [0, 0], y: [0,0] } }
+   * - It can be used to access the data of a specific entity's component.
+   * - Let's say you want to access the position of the entity with id 0.
+   * - You can do it like this: components[position].x[0] and components[position].y[0]
+   * - The syntax is pretty simple: components[componentId].componentProperty[entityId]
+   */
+  components: Record<number, ComponentData>,
+
+  /**
+   * Represents the time elapsed since the last render.
+   */
+  dt: number
+) => void;
+
+/**
+ * Represents all possible settings for a world.
+ */
 type WorldSettings = {
+  /**
+   * The maximum number of entities that can be created in the world.
+   * @default 10000
+   * 
+   * - Keep this number as low as possible to reduce memory usage.
+   * - Make sure this number will not be too low that you will run out of entities,
+   * and too high that you will allocate unnecessary memory.
+   * - The maximum number of entities is limited by the maximum number of bits 
+   * in a unsigned 16-bit integer (65535). See: .
+   */
   maxEntitiesCount?: number;
 };
-type System = (queries: Record<number, Uint16Array>, components: Record<number, ComponentData>, dt: number) => void;
 
 // Implementation --------------------------------------------------------------
 
 export function createWorld(settings?: WorldSettings) {
+
   // Settings ------------------------------------------------------------------
 
+  // ToDo: add logic to validate settings
   const maxEntitiesCount = settings?.maxEntitiesCount ?? MAX_ENTITIES_COUNT;
 
   // Internal World State ------------------------------------------------------
