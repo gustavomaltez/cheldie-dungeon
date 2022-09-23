@@ -85,7 +85,6 @@ describe('Id System', () => {
     const idSystem2 = createIdSystem();
     const id1 = idSystem1.create();
     const id2 = idSystem2.create();
-    console.log(id1, id2);
     expect(id1).toBe(0);
     expect(id2).toBe(0);
   });

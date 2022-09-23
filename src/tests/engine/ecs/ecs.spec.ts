@@ -1,4 +1,4 @@
-import { createWorld } from '@engine/ecs';
+import { createWorld, TYPES } from '@engine/ecs';
 
 describe('Entity Component System', () => {
   describe('World Creation', () => {
@@ -68,7 +68,6 @@ describe('Entity Component System', () => {
       });
     });
 
-    // ToDo: read the tests and fix logic on id system for invalid entity deletion
     describe('Deletion', () => {
       it('Should allow to delete an entity.', () => {
         const world = createWorld();
@@ -96,7 +95,64 @@ describe('Entity Component System', () => {
         const world = createWorld();
         expect(() => world.entity.delete(1)).toThrow();
       });
+    });
 
+    describe('Components Attachment', () => {
+      it.todo('Components attachment tests');
+    });
+  });
+
+  describe('Components', () => {
+    describe('Creation', () => {
+      it('Should allow to create a component.', () => {
+        const world = createWorld();
+        expect(() => {
+          world.component.create({
+            foo: TYPES.int8,
+            bar: TYPES.int16,
+          });
+        }).not.toThrow();
+      });
+
+      it('Should correctly create a component.', () => {
+        const world = createWorld();
+        const component = world.component.create({
+          foo: TYPES.int8,
+          bar: TYPES.int16,
+        });
+        expect(component).toBeDefined();
+      });
+
+      it('Should return a numeric id associated to the just created component.', () => {
+        const world = createWorld();
+        const component = world.component.create({
+          foo: TYPES.int8,
+          bar: TYPES.int16,
+        });
+        expect(typeof component).toBe('number');
+      });
+
+      it('Should start the component id creation from 0.', () => {
+        const world = createWorld();
+        const component = world.component.create({
+          foo: TYPES.int8,
+          bar: TYPES.int16,
+        });
+        expect(component).toBe(0);
+      });
+
+      it('Should create sequential ids for created components.', () => {
+        const world = createWorld();
+        const component1 = world.component.create({
+          foo: TYPES.int8,
+          bar: TYPES.int16,
+        });
+        const component2 = world.component.create({
+          foo: TYPES.int8,
+          bar: TYPES.int16,
+        });
+        expect(component2).toBe(component1 + 1);
+      });
     });
   });
 });
