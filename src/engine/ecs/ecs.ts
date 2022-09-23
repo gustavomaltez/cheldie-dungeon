@@ -15,12 +15,10 @@ type System = (queries: Record<number, Uint16Array>, components: Record<number, 
 
 // Implementation --------------------------------------------------------------
 
-export function createWorld(settings: WorldSettings) {
+export function createWorld(settings?: WorldSettings) {
   // Settings ------------------------------------------------------------------
 
-  const {
-    maxEntitiesCount = MAX_ENTITIES_COUNT
-  } = settings;
+  const maxEntitiesCount = settings?.maxEntitiesCount ?? MAX_ENTITIES_COUNT;
 
   // Internal World State ------------------------------------------------------
 
