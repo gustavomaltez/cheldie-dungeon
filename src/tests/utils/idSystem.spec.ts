@@ -7,10 +7,16 @@ describe('Id System', () => {
     expect(typeof id).toBe('number');
   });
 
-  it('Should allow to define a starting id.', () => {
+  it('Should allow to define a starting id as a positive number.', () => {
     const idSystem = createIdSystem(10);
     const id = idSystem.create();
     expect(id).toBe(10);
+  });
+
+  it('Should allow to define a starting id as a negative number.', () => {
+    const idSystem = createIdSystem(-10);
+    const id = idSystem.create();
+    expect(id).toBe(-10);
   });
 
   it('Should return a sequential id.', () => {
@@ -43,6 +49,18 @@ describe('Id System', () => {
   it('Should start the alive id count at 0.', () => {
     const idSystem = createIdSystem();
     expect(idSystem.getAliveIdCount()).toBe(0);
+  });
+
+  it('Should correctly return the alive id count when starting the id system from a non-zero value.', () => {
+    const idSystem = createIdSystem(10);
+    idSystem.create();
+    expect(idSystem.getAliveIdCount()).toBe(1);
+  });
+
+  it('Should correctly return the alive id count when starting the id system from a negative value.', () => {
+    const idSystem = createIdSystem(-10);
+    idSystem.create();
+    expect(idSystem.getAliveIdCount()).toBe(1);
   });
 
   it('Should correctly return the alive id count after deleting ids.', () => {
@@ -85,5 +103,15 @@ describe('Id System', () => {
     const idSystem = createIdSystem();
     const id = idSystem.create();
     expect(id).toBe(0);
+  });
+
+  it('Should not allow to delete an invalid id.', () => {
+    const idSystem = createIdSystem();
+    expect(() => idSystem.delete(10)).toThrowError();
+  });
+
+  it('Should not allow to delete the initial id, if no id was generated yet.', () => {
+    const idSystem = createIdSystem();
+    expect(() => idSystem.delete(0)).toThrowError();
   });
 });
