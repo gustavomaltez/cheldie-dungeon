@@ -92,9 +92,9 @@ describe('Entity Component System', () => {
         }).not.toThrow();
       });
 
-      it('Should not throw an error when trying to delete an entity that does not exist.', () => {
+      it('Should throw an error when trying to delete an entity that does not exist.', () => {
         const world = createWorld();
-        expect(() => world.entity.delete(1)).not.toThrow();
+        expect(() => world.entity.delete(1)).toThrow();
       });
 
     });
