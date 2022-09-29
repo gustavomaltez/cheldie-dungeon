@@ -22,11 +22,12 @@ export function createIdSystem(startingId = 0) {
      * Deletes an id. (Be aware that this id can be used again)
      */
     delete(id: number) {
-      if (id > nextId || (id == startingId && id === nextId))
+      // ToDo: Make sure the .includes is not too slow.
+      if (id > nextId || (id == startingId && id === nextId) || availableIds.includes(id))
         throw new Error(`Unable to delete id ${id}. Id doesn't exist yet.`);
       availableIds.push(id);
     },
-    getAliveIdCount() { //ToDo: Need to fix this logic, i's wrong
+    getAliveIdCount() {
       return (nextId - startingId) - availableIds.length;
     },
   };
