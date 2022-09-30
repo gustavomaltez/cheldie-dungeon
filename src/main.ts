@@ -1,12 +1,15 @@
 import { createWorld, TYPES } from '@engine/ecs';
+import { getDrawingEngine } from '@engine/engines';
+import { getLogger } from '@engine/services';
 
-// Temporary canvas setup ------------------------------------------------------
+// Drawing Engine --------------------------------------------------------------
 
-const canvas = document.createElement('canvas');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-document.body.appendChild(canvas);
-const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+const Logger = getLogger('browser');
+const drawingEngineLogger = new Logger({ owner: 'DrawingEngine' });
+const DrawingEngine = getDrawingEngine('canvas');
+const drawingEngine = new DrawingEngine({ logger: drawingEngineLogger });
+await drawingEngine.initialize();
+drawingEngine.resize({ width: window.innerWidth, height: window.innerHeight });
 
 // Temporary input detection ---------------------------------------------------
 
@@ -17,10 +20,7 @@ window.onkeydown = function (e) { pressedKeys[e.key] = true; };
 
 // Temporary canvas resizer ----------------------------------------------------
 
-window.onresize = () => {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-};
+window.onresize = () => drawingEngine.resize({ width: window.innerWidth, height: window.innerHeight });
 
 // World setup -----------------------------------------------------------------
 
@@ -80,13 +80,13 @@ world.system.create((queries, components, dt) => {
     const { width, height } = components[size];
 
     // If component is outside the right boundary
-    if (positionX[id] + width[id] >= canvas.width)
+    if (positionX[id] + width[id] >= drawingEngine.dimensions.width)
       velocityX[id] = velocityX[id] * -1;
     //If component is outside the left boundary
     if (positionX[id] <= 0)
       velocityX[id] = velocityX[id] * -1;
     // If component is outside the bottom boundary
-    if (positionY[id] + height[id] >= canvas.height)
+    if (positionY[id] + height[id] >= drawingEngine.dimensions.height)
       velocityY[id] = velocityY[id] * -1;
     // If component is outside the top boundary
     if (positionY[id] <= 0)
@@ -98,9 +98,13 @@ world.system.create((queries, components, dt) => {
 });
 
 world.system.create((queries, components, dt) => {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = '#292a2d';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  drawingEngine.clear();
+  drawingEngine.drawRect({
+    x: 0,
+    y: 0,
+    width: drawingEngine.dimensions.width,
+    height: drawingEngine.dimensions.height
+  }, '#292a2d');
 
   for (const id of queries[inMapQuery]) {
     if (id === 0) return;
@@ -109,8 +113,12 @@ world.system.create((queries, components, dt) => {
     const { width, height } = components[size];
     const { r, g, b } = components[color];
 
-    ctx.fillStyle = `rgb(${r[id]}, ${g[id]}, ${b[id]})`;
-    ctx.fillRect(x[id], y[id], width[id], height[id]);
+    drawingEngine.drawRect({
+      x: x[id],
+      y: y[id],
+      width: width[id],
+      height: height[id]
+    }, `rgb(${r[id]}, ${g[id]}, ${b[id]})`);
   }
 });
 
