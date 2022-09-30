@@ -23,6 +23,7 @@ export function createIdSystem(startingId = 0) {
      */
     delete(id: number) {
       // ToDo: Make sure the .includes is not too slow.
+      // Maybe we can use a bitmap to check if the id exists.
       if (id > nextId || (id == startingId && id === nextId) || availableIds.includes(id))
         throw new Error(`Unable to delete id ${id}. Id doesn't exist yet.`);
       availableIds.push(id);
