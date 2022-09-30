@@ -125,6 +125,7 @@ export function createWorld(settings?: WorldSettings) {
         array[entityId] = value;
       }
     } catch (error) {
+      // ToDo: fix this! This logic is only working if we already have a component with X properties defined.
       const componentKeys = Object.keys(components[componentId]);
       const dataKeys = Object.keys(componentData);
       const unique = dataKeys.filter(key => componentKeys.indexOf(key) === -1);

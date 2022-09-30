@@ -1,1 +1,1 @@
-export { CanvasDrawingEngine } from './DrawingEngine';
+export * from './DrawingEngine';
